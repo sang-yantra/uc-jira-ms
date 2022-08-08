@@ -20,32 +20,51 @@ namespace Jira.Ms.Controllers
         [HttpGet(Name = "GetTask")]
         public IActionResult GetTasks()
         {
-            var sql = "Select * from TASK";
-            var result = _conn.Query<Tasks>(sql).ToList();
+            try
+            {
+                var sql = "Select * from TASK";
+                var result = _conn.Query<Tasks>(sql).ToList();
 
-            return Ok(result);
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error message : {ex.Message} stack trace {ex.StackTrace}");
+            }
         }
 
         [HttpPost(Name = "Task")]
         public IActionResult CreateTask([FromBody] Tasks task)
         {
-            string insertQuery = "INSERT INTO `TASK` (`TITLE`, `DESCRIPTION`, `ACCEPTANCE_CRITERIA`, `STATUS`, `PRIORITY`, `ORIGINAL_ESTIMATE`, `COMPLETED`, `REMAINING`)" +
-                                  "VALUES(@Title, @Description, @Acceptance_Criteria, @Status, @Priority, @Original_Estimate, @Completed, @Remaining); ";
 
-            int rowsAffected = _conn.Execute(insertQuery,
-                    new Tasks()
-                    {
-                        Title = task.Title,
-                        Description = task.Description, 
-                        Acceptance_Criteria = task.Acceptance_Criteria,
-                        Status = task.Status,
-                        Priority = task.Priority,
-                        Original_Estimate = task.Original_Estimate,
-                        Completed = task.Completed,
-                        Remaining = task.Remaining,
-                    }
-                );
-            return Created("created",rowsAffected);
+            try
+            {
+
+                string insertQuery = "INSERT INTO `TASK` (`TITLE`, `DESCRIPTION`, `ACCEPTANCE_CRITERIA`, `STATUS`, `PRIORITY`, `ORIGINAL_ESTIMATE`, `COMPLETED`, `REMAINING`)" +
+                                      "VALUES(@Title, @Description, @Acceptance_Criteria, @Status, @Priority, @Original_Estimate, @Completed, @Remaining); ";
+
+                int rowsAffected = _conn.Execute(insertQuery,
+                        new Tasks()
+                        {
+                            Title = task.Title,
+                            Description = task.Description,
+                            Acceptance_Criteria = task.Acceptance_Criteria,
+                            Status = task.Status,
+                            Priority = task.Priority,
+                            Original_Estimate = task.Original_Estimate,
+                            Completed = task.Completed,
+                            Remaining = task.Remaining,
+                        }
+                    );
+                return Created("created", rowsAffected);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, $"Internal server error message : {ex.Message} stack trace {ex.StackTrace}");
+
+            }
+
         }
     }
 }
