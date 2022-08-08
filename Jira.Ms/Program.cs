@@ -13,6 +13,14 @@ config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
+services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+});
+
+
 
 /// set db context
 //var dbconnectionstring = config.GetConnectionString("DefaultConnection");
@@ -35,6 +43,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
 }
+
 app.UseSwagger();
 app.UseSwaggerUI();
 

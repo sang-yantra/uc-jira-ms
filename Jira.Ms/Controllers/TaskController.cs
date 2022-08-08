@@ -6,7 +6,8 @@ using Jira.Microservice.Models;
 namespace Jira.Ms.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [ApiVersion("1")]
+    [Route("api/{version:apiVersion}/[controller]")]
     public class TaskController : Controller
     {
         private string _connectionString { get; set; }
@@ -17,8 +18,9 @@ namespace Jira.Ms.Controllers
             _conn = new MySqlConnection(_connectionString);
         }
 
-        [HttpGet(Name = "GetTask")]
-        public IActionResult GetTasks()
+        [HttpGet("GetTasks")]
+        [ProducesResponseType(200, Type = typeof(List<Tasks>))]
+        public ActionResult<List<Tasks>> GetTasks()
         {
             try
             {
@@ -34,7 +36,8 @@ namespace Jira.Ms.Controllers
             }
         }
 
-        [HttpPost(Name = "Task")]
+        [HttpPost("Task")]
+        [ProducesResponseType(200, Type = typeof(Tasks))]
         public IActionResult CreateTask([FromBody] Tasks task)
         {
 
@@ -44,20 +47,21 @@ namespace Jira.Ms.Controllers
                 string insertQuery = "INSERT INTO `TASK` (`TITLE`, `DESCRIPTION`, `ACCEPTANCE_CRITERIA`, `STATUS`, `PRIORITY`, `ORIGINAL_ESTIMATE`, `COMPLETED`, `REMAINING`)" +
                                       "VALUES(@Title, @Description, @Acceptance_Criteria, @Status, @Priority, @Original_Estimate, @Completed, @Remaining); ";
 
+                var newTasks = new Tasks()
+                {
+                    Title = task.Title,
+                    Description = task.Description,
+                    Acceptance_Criteria = task.Acceptance_Criteria,
+                    Status = task.Status,
+                    Priority = task.Priority,
+                    Original_Estimate = task.Original_Estimate,
+                    Completed = task.Completed,
+                    Remaining = task.Remaining,
+                };
                 int rowsAffected = _conn.Execute(insertQuery,
-                        new Tasks()
-                        {
-                            Title = task.Title,
-                            Description = task.Description,
-                            Acceptance_Criteria = task.Acceptance_Criteria,
-                            Status = task.Status,
-                            Priority = task.Priority,
-                            Original_Estimate = task.Original_Estimate,
-                            Completed = task.Completed,
-                            Remaining = task.Remaining,
-                        }
+                        newTasks
                     );
-                return Created("created", rowsAffected);
+                return Created("created", newTasks);
             }
             catch(Exception ex)
             {
